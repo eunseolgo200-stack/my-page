@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAME OVER? NO! WELCOME TO EUNSEOL WORLD!</title>
+    <!-- 8비트 레트로 폰트 (Press Start 2P) 및 둥근 픽셀 느낌 폰트 (DungGeunMo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DungGeunMo&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pixel: {
+                            bgDark: '#0f051d',
+                            cardDark: '#1a0933',
+                            bgLight: '#f0e6ff',
+                            cardLight: '#ffffff',
+                            neonPink: '#ff007f',
+                            neonCyan: '#00f3ff',
+                            neonYellow: '#ffe600',
+                            neonGreen: '#39ff14'
+                        }
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', '"DungGeunMo"', 'cursive', 'sans-serif'],
+                        korean: ['"DungGeunMo"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Canvas Confetti 라이브러리 (OX 퀴즈 축하 효과용) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* 레트로 오락실 기본 스타일 및 CRT 스캔라인 효과 */
+        body {
+            font-family: 'DungGeunMo', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        /* CRT 화면 선 효과 */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 40;
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* 8비트 테두리 픽셀 스타일 Box Shadow */
+        .pixel-border {
+            box-shadow: 
+                -4px 0 0 0 currentColor,
+                4px 0 0 0 currentColor,
+                0 -4px 0 0 currentColor,
+                0 4px 0 0 currentColor;
+            margin: 4px;
+        }
+
+        .pixel-btn {
+            position: relative;
+            transition: all 0.1s ease;
+        }
+
+        .pixel-btn:active {
+            transform: translateY(4px);
+        }
+
+        /* 카드 뒤집기 3D 스타일 */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* 통통 튀는 애니메이션 */
+        @keyframes bounce-pixel {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .bounce-letter {
+            display: inline-block;
+            animation: bounce-pixel 0.8s infinite ease-in-out;
+        }
+
+        /* 마우스 픽셀 반짝이 파티클 */
+        .sparkle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            z-index: 50;
+            animation: sparkleAnim 0.6s linear forwards;
+        }
+        @keyframes sparkleAnim {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(0) rotate(180deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="crt bg-pixel-bgLight dark:bg-pixel-bgDark text-gray-900 dark:text-white min-h-screen transition-colors duration-300 relative overflow-x-hidden pb-12">
+
+    <!-- 마우스 반짝이 트래커 용 컨테이너 -->
+    <div id="sparkle-container"></div>
+
+    <!-- 네비게이션 & 테마 토글 -->
+    <header class="p-4 max-w-4xl mx-auto flex justify-between items-center">
+        <div class="text-xs sm:text-sm font-pixel text-pixel-neonPink dark:text-pixel-neonCyan animate-pulse">
+            [STAGE 1-1]
+        </div>
+        <!-- 밝은/어두운 화면 전환 버튼 -->
+        <button id="theme-toggle" class="pixel-btn pixel-border bg-yellow-400 dark:bg-purple-900 text-black dark:text-yellow-300 font-bold px-3 py-2 text-sm">
+            <span id="theme-icon">🌙</span> <span id="theme-text">어두운 화면</span>
+        </button>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 space-y-10">
+
+        <!-- 메인 프로필 헤더 (별명 애니메이션) -->
+        <section class="text-center py-6 pixel-border bg-white dark:bg-pixel-cardDark text-gray-900 dark:text-white p-6">
+            <p class="text-sm font-pixel text-pixel-neonCyan mb-2">&lt;PLAYER INFO&gt;</p>
+            <h1 class="text-4xl sm:text-6xl font-bold tracking-wider mb-4 font-korean">
+                안녕하세요! <br class="sm:hidden" />
+                <span class="text-pixel-neonPink inline-block">
+                    <span class="bounce-letter" style="animation-delay: 0.0s;">은</span><span class="bounce-letter" style="animation-delay: 0.1s;">설</span>
+                </span>입니다! 🎮
+            </h1>
+            <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 font-korean">
+                8비트 레트로 감성이 가득한 저의 미니 오락실에 오신 것을 환영합니다!
+            </p>
+        </section>
+
+        <!-- 좋아하는 것 3가지 (카드 뒤집기) -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-center text-pixel-neonYellow font-pixel">
+                ★ FAVORITE THINGS ★
+            </h2>
+            <p class="text-center text-sm opacity-80 mb-4">카드를 클릭하여 뒤집어보세요!</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- 카드 1: 게임 -->
+                <div class="card-container perspective-1000 h-64 cursor-pointer">
+                    <div class="card-inner relative w-full h-full transform-style-3d pixel-border bg-purple-100 dark:bg-indigo-950 text-center">
+                        <!-- 앞면 -->
+                        <div class="absolute inset-0 backface-hidden p-6 flex flex-col justify-center items-center border-4 border-purple-500">
+                            <div class="text-6xl mb-3">🕹️</div>
+                            <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-300 font-pixel">GAME</h3>
+                            <p class="text-xs mt-2 text-gray-500 dark:text-gray-400">[ Click to Flip ]</p>
+                        </div>
+                        <!-- 뒷면 -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 p-6 flex flex-col justify-center items-center bg-purple-600 text-white border-4 border-purple-300">
+                            <h4 class="text-lg font-bold mb-2">왜 좋아할까?</h4>
+                            <p class="text-sm sm:text-base leading-relaxed font-korean">
+                                "현실 세상보다 그래픽이 더 예쁘고, 퀘스트를 깨면 상도 주니까! 픽셀 하나하나에 내 영혼을 갈아 넣는 중입니다."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 카드 2: 총 -->
+                <div class="card-container perspective-1000 h-64 cursor-pointer">
+                    <div class="card-inner relative w-full h-full transform-style-3d pixel-border bg-red-100 dark:bg-red-950 text-center">
+                        <!-- 앞면 -->
+                        <div class="absolute inset-0 backface-hidden p-6 flex flex-col justify-center items-center border-4 border-red-500">
+                            <div class="text-6xl mb-3">🔫</div>
+                            <h3 class="text-2xl font-bold text-red-600 dark:text-red-300 font-pixel">GUN</h3>
+                            <p class="text-xs mt-2 text-gray-500 dark:text-gray-400">[ Click to Flip ]</p>
+                        </div>
+                        <!-- 뒷면 -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 p-6 flex flex-col justify-center items-center bg-red-600 text-white border-4 border-red-300">
+                            <h4 class="text-lg font-bold mb-2">왜 좋아할까?</h4>
+                            <p class="text-sm sm:text-base leading-relaxed font-korean">
+                                "FPS 게임에서 탕! 탕! 헤드샷 날릴 때의 쾌감! (물론 레이저총이나 BB탄총입니다. 비비탄 사격장 1등은 항상 내 차지!)"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 카드 3: 별 -->
+                <div class="card-container perspective-1000 h-64 cursor-pointer">
+                    <div class="card-inner relative w-full h-full transform-style-3d pixel-border bg-yellow-100 dark:bg-yellow-950 text-center">
+                        <!-- 앞면 -->
+                        <div class="absolute inset-0 backface-hidden p-6 flex flex-col justify-center items-center border-4 border-yellow-500">
+                            <div class="text-6xl mb-3">⭐</div>
+                            <h3 class="text-2xl font-bold text-yellow-600 dark:text-yellow-300 font-pixel">STAR</h3>
+                            <p class="text-xs mt-2 text-gray-500 dark:text-gray-400">[ Click to Flip ]</p>
+                        </div>
+                        <!-- 뒷면 -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 p-6 flex flex-col justify-center items-center bg-yellow-500 text-black border-4 border-yellow-200">
+                            <h4 class="text-lg font-bold mb-2">왜 좋아할까?</h4>
+                            <p class="text-sm sm:text-base leading-relaxed font-korean">
+                                "밤하늘을 보면 무적 아이템 먹은 것처럼 기분이 반짝반짝 좋아져서! 제 이름(은설)처럼 밤하늘에 빛나는 별을 사랑합니다."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- OX 퀴즈 섹션 -->
+        <section class="pixel-border bg-white dark:bg-pixel-cardDark p-6 text-center space-y-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-pixel-neonCyan font-pixel">
+                [ OX QUIZ ]
+            </h2>
+            <p class="text-lg sm:text-xl font-korean">
+                Q. "난 집에 가고싶다" (은설이의 속마음은?)
+            </p>
+            
+            <div class="flex justify-center gap-6 pt-2">
+                <button id="quiz-o" class="pixel-btn pixel-border bg-green-500 text-white text-3xl font-bold px-8 py-4 hover:bg-green-600">
+                    O
+                </button>
+                <button id="quiz-x" class="pixel-btn pixel-border bg-rose-500 text-white text-3xl font-bold px-8 py-4 hover:bg-rose-600">
+                    X
+                </button>
+            </div>
+
+            <!-- 퀴즈 결과 메시지 박스 -->
+            <div id="quiz-result" class="hidden p-4 rounded font-bold text-lg font-korean transition-all duration-300"></div>
+        </section>
+
+        <!-- 랜덤 점심 메뉴 추천 섹션 -->
+        <section class="pixel-border bg-white dark:bg-pixel-cardDark p-6 text-center space-y-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-pixel-neonPink font-pixel">
+                [ LUNCH ROULETTE ]
+            </h2>
+            <p class="text-sm font-korean">오늘 뭐 먹지? 은설 추천 8비트 점심 메뉴!</p>
+            
+            <div class="py-4">
+                <div id="lunch-display" class="text-2xl sm:text-3xl font-bold text-pixel-neonYellow py-3 px-6 inline-block bg-black text-white border-2 border-dashed border-pixel-neonYellow">
+                    버튼을 눌러주세요! 🍔
+                </div>
+            </div>
+
+            <button id="lunch-btn" class="pixel-btn pixel-border bg-pixel-neonCyan text-black font-bold px-6 py-3 text-lg hover:bg-cyan-300 font-korean">
+                🎲 오늘의 점심 메뉴 추천!
+            </button>
+        </section>
+
+        <!-- 10초 클릭 미니게임 섹션 -->
+        <section class="pixel-border bg-white dark:bg-pixel-cardDark p-6 text-center space-y-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-pixel-neonYellow font-pixel">
+                [ MINI GAME: SPEED CLICK ]
+            </h2>
+            <p class="text-sm font-korean">10초 동안 버튼을 최대한 많이 연타하세요!</p>
+            
+            <div class="flex justify-center items-center gap-8 text-xl font-bold font-pixel">
+                <div>TIME: <span id="game-time" class="text-pixel-neonPink">10</span>s</div>
+                <div>SCORE: <span id="game-score" class="text-pixel-neonGreen">0</span></div>
+            </div>
+
+            <div class="pt-2">
+                <button id="click-game-btn" class="pixel-btn pixel-border bg-purple-600 text-white text-xl font-bold px-10 py-5 w-full sm:w-auto hover:bg-purple-700 font-korean">
+                    ▶ GAME START (클릭!)
+                </button>
+            </div>
+            
+            <p id="game-high-score" class="text-xs text-gray-500 dark:text-gray-400 font-pixel pt-2">
+                HIGH SCORE: 0
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 text-center text-xs opacity-60 font-pixel">
+        <p>© 8-BIT EUNSEOL WORLD. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <!-- JavaScript 기능 로직 -->
+    <script>
+        // --- 1. 다크/라이트 모드 토글 ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        const html = document.documentElement;
+
+        themeToggleBtn.addEventListener('click', () => {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = '밝은 화면';
+            } else {
+                html.classList.add('dark');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '어두운 화면';
+            }
+        });
+
+        // --- 2. 카드 뒤집기 이벤트 ---
+        const cardContainers = document.querySelectorAll('.card-container');
+        cardContainers.forEach(card => {
+            card.addEventListener('click', () => {
+                const inner = card.querySelector('.card-inner');
+                inner.classList.toggle('rotate-y-180');
+            });
+        });
+
+        // --- 3. 마우스 따라다니는 반짝이 이펙트 ---
+        const sparkleContainer = document.getElementById('sparkle-container');
+        const colors = ['#ff007f', '#00f3ff', '#ffe600', '#39ff14', '#ffffff'];
+
+        window.addEventListener('mousemove', (e) => {
+            // 성능 강화를 위해 일정 확률로만 생성
+            if (Math.random() < 0.25) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                sparkle.style.left = (e.clientX - 4) + 'px';
+                sparkle.style.top = (e.clientY - 4) + 'px';
+                sparkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 픽셀 느낌으로 찌그러진 네모
+                sparkle.style.boxShadow = `0 0 6px ${sparkle.style.backgroundColor}`;
+                
+                sparkleContainer.appendChild(sparkle);
+
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 600);
+            }
+        });
+
+        // --- 4. OX 퀴즈 ---
+        const quizO = document.getElementById('quiz-o');
+        const quizX = document.getElementById('quiz-x');
+        const quizResult = document.getElementById('quiz-result');
+
+        quizO.addEventListener('click', () => {
+            quizResult.classList.remove('hidden', 'bg-red-500', 'text-white');
+            quizResult.classList.add('bg-green-500', 'text-white');
+            quizResult.innerHTML = '🎉 정답입니다! "집이 최고야! 침대로 고고씽!" (폭죽 발사!)';
+            
+            // 폭죽 효과 (confetti)
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        });
+
+        quizX.addEventListener('click', () => {
+            quizResult.classList.remove('hidden', 'bg-green-500', 'text-white');
+            quizResult.classList.add('bg-red-500', 'text-white');
+            quizResult.innerHTML = '💥 틀렸습니다! 은설이는 지금 몹시 집에 가고 싶습니다... (아쉽군요!)';
+            
+            // 화면 짧게 흔들림 효과
+            document.body.classList.add('translate-x-1');
+            setTimeout(() => document.body.classList.remove('translate-x-1'), 100);
+        });
+
+        // --- 5. 오늘의 점심 메뉴 추천 (10개 이상) ---
+        const lunchMenus = [
+            "🍕 8비트 치즈 피자",
+            "🍔 갓 튀긴 치즈버거 세트",
+            "🍜 얼큰한 해장 라면",
+            "🍣 스페셜 모둠 초밥",
+            "🍛 매콤달콤 카레라이스",
+            "🍲 보글보글 김치찌개",
+            "🍝 고소한 크림 파스타",
+            "🍱 스팸 계란 덮밥",
+            "🥟 바삭한 군만두와 떡볶이",
+            "🍗 양념 반 후라이드 반 치킨",
+            "🌮 멕시칸 퀘사디아",
+            "🥩 육즙 가득 돈가스"
+        ];
+
+        const lunchBtn = document.getElementById('lunch-btn');
+        const lunchDisplay = document.getElementById('lunch-display');
+        let isSpinning = false;
+
+        lunchBtn.addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            let counter = 0;
+            const interval = setInterval(() => {
+                const randomTemp = lunchMenus[Math.floor(Math.random() * lunchMenus.length)];
+                lunchDisplay.textContent = randomTemp;
+                counter++;
+
+                if (counter > 15) {
+                    clearInterval(interval);
+                    const finalChoice = lunchMenus[Math.floor(Math.random() * lunchMenus.length)];
+                    lunchDisplay.textContent = `✨ ${finalChoice} ✨`;
+                    isSpinning = false;
+                }
+            }, 80);
+        });
+
+        // --- 6. 10초 스피드 클릭 미니게임 ---
+        const gameBtn = document.getElementById('click-game-btn');
+        const gameTimeDisplay = document.getElementById('game-time');
+        const gameScoreDisplay = document.getElementById('game-score');
+        const highScoreDisplay = document.getElementById('game-high-score');
+
+        let score = 0;
+        let timeLeft = 10;
+        let gameTimer = null;
+        let isPlaying = false;
+        let highScore = 0;
+
+        gameBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                // 게임 시작
+                isPlaying = true;
+                score = 1;
+                timeLeft = 10;
+                gameScoreDisplay.textContent = score;
+                gameTimeDisplay.textContent = timeLeft;
+                gameBtn.textContent = '🔥 연타하세요!!! 🔥';
+                gameBtn.classList.replace('bg-purple-600', 'bg-red-600');
+
+                gameTimer = setInterval(() => {
+                    timeLeft--;
+                    gameTimeDisplay.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(gameTimer);
+                        isPlaying = false;
+                        gameBtn.textContent = '🔄 다시 도전하기!';
+                        gameBtn.classList.replace('bg-red-600', 'bg-purple-600');
+                        
+                        // 최고 기록 갱신
+                        if (score > highScore) {
+                            highScore = score;
+                            highScoreDisplay.textContent = `HIGH SCORE: ${highScore} (NEW RECORD!)`;
+                        }
+
+                        alert(`🎮 GAME OVER!\n당신의 기록: 10초 동안 ${score}번 클릭했습니다!`);
+                    }
+                }, 1000);
+            } else {
+                // 게임 진행 중 연타
+                score++;
+                gameScoreDisplay.textContent = score;
+            }
+        });
+    </script>
+</body>
+</html>
