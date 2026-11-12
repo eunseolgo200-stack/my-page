@@ -1,40 +1,3 @@
-Skip to content
-eunseolgo200-stack
-my-page
-Repository navigation
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security and quality
-Commit 0fb7e86
-eunseolgo200-stack
-eunseolgo200-stack
-authored
-yesterday
-·
-·
-Verified
-Create index.html
-main
-0 parents  commit 
-0fb7e86
-1 file changed
-
-+457
-Lines changed: 457 additions & 0 deletions
-File tree
-Filter files…
-index.html
-Search within code
- 
-‎index.html‎
-+457
-Lines changed: 457 additions & 0 deletions
-Original file line number	Diff line number	Diff line change
-@@ -0,0 +1,457 @@
 <!DOCTYPE html>
 <html lang="ko" class="dark">
 <head>
@@ -79,6 +42,7 @@ Original file line number	Diff line number	Diff line change
             touch-action: manipulation;
             user-select: none;
         }
+
         /* CRT 화면 선 효과 */
         .crt::before {
             content: " ";
@@ -90,6 +54,7 @@ Original file line number	Diff line number	Diff line change
             background-size: 100% 3px, 6px 100%;
             pointer-events: none;
         }
+
         /* 8비트 테두리 픽셀 스타일 Box Shadow */
         .pixel-border {
             box-shadow: 
@@ -99,13 +64,16 @@ Original file line number	Diff line number	Diff line change
                 0 4px 0 0 currentColor;
             margin: 4px;
         }
+
         .pixel-btn {
             position: relative;
             transition: all 0.1s ease;
         }
+
         .pixel-btn:active {
             transform: translateY(4px);
         }
+
         /* 카드 뒤집기 3D 스타일 */
         .perspective-1000 {
             perspective: 1000px;
@@ -120,6 +88,7 @@ Original file line number	Diff line number	Diff line change
         .rotate-y-180 {
             transform: rotateY(180deg);
         }
+
         /* 통통 튀는 애니메이션 */
         @keyframes bounce-pixel {
             0%, 100% { transform: translateY(0); }
@@ -129,6 +98,7 @@ Original file line number	Diff line number	Diff line change
             display: inline-block;
             animation: bounce-pixel 0.8s infinite ease-in-out;
         }
+
         /* 마우스 픽셀 반짝이 파티클 */
         .sparkle {
             position: fixed;
@@ -145,8 +115,10 @@ Original file line number	Diff line number	Diff line change
     </style>
 </head>
 <body class="crt bg-pixel-bgLight dark:bg-pixel-bgDark text-gray-900 dark:text-white min-h-screen transition-colors duration-300 relative overflow-x-hidden pb-12">
+
     <!-- 마우스 반짝이 트래커 용 컨테이너 -->
     <div id="sparkle-container"></div>
+
     <!-- 네비게이션 & 테마 토글 -->
     <header class="p-4 max-w-4xl mx-auto flex justify-between items-center">
         <div class="text-xs sm:text-sm font-pixel text-pixel-neonPink dark:text-pixel-neonCyan animate-pulse">
@@ -157,7 +129,9 @@ Original file line number	Diff line number	Diff line change
             <span id="theme-icon">🌙</span> <span id="theme-text">어두운 화면</span>
         </button>
     </header>
+
     <main class="max-w-4xl mx-auto px-4 space-y-10">
+
         <!-- 메인 프로필 헤더 (별명 애니메이션) -->
         <section class="text-center py-6 pixel-border bg-white dark:bg-pixel-cardDark text-gray-900 dark:text-white p-6">
             <p class="text-sm font-pixel text-pixel-neonCyan mb-2">&lt;PLAYER INFO&gt;</p>
@@ -171,12 +145,14 @@ Original file line number	Diff line number	Diff line change
                 8비트 레트로 감성이 가득한 저의 미니 오락실에 오신 것을 환영합니다!
             </p>
         </section>
+
         <!-- 좋아하는 것 3가지 (카드 뒤집기) -->
         <section class="space-y-4">
             <h2 class="text-2xl font-bold text-center text-pixel-neonYellow font-pixel">
                 ★ FAVORITE THINGS ★
             </h2>
             <p class="text-center text-sm opacity-80 mb-4">카드를 클릭하여 뒤집어보세요!</p>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
                 <!-- 카드 1: 게임 -->
@@ -197,6 +173,7 @@ Original file line number	Diff line number	Diff line change
                         </div>
                     </div>
                 </div>
+
                 <!-- 카드 2: 총 -->
                 <div class="card-container perspective-1000 h-64 cursor-pointer">
                     <div class="card-inner relative w-full h-full transform-style-3d pixel-border bg-red-100 dark:bg-red-950 text-center">
@@ -215,6 +192,7 @@ Original file line number	Diff line number	Diff line change
                         </div>
                     </div>
                 </div>
+
                 <!-- 카드 3: 별 -->
                 <div class="card-container perspective-1000 h-64 cursor-pointer">
                     <div class="card-inner relative w-full h-full transform-style-3d pixel-border bg-yellow-100 dark:bg-yellow-950 text-center">
@@ -233,8 +211,10 @@ Original file line number	Diff line number	Diff line change
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
+
         <!-- OX 퀴즈 섹션 -->
         <section class="pixel-border bg-white dark:bg-pixel-cardDark p-6 text-center space-y-4">
             <h2 class="text-xl sm:text-2xl font-bold text-pixel-neonCyan font-pixel">
@@ -252,9 +232,11 @@ Original file line number	Diff line number	Diff line change
                     X
                 </button>
             </div>
+
             <!-- 퀴즈 결과 메시지 박스 -->
             <div id="quiz-result" class="hidden p-4 rounded font-bold text-lg font-korean transition-all duration-300"></div>
         </section>
+
         <!-- 랜덤 점심 메뉴 추천 섹션 -->
         <section class="pixel-border bg-white dark:bg-pixel-cardDark p-6 text-center space-y-4">
             <h2 class="text-xl sm:text-2xl font-bold text-pixel-neonPink font-pixel">
@@ -267,10 +249,12 @@ Original file line number	Diff line number	Diff line change
                     버튼을 눌러주세요! 🍔
                 </div>
             </div>
+
             <button id="lunch-btn" class="pixel-btn pixel-border bg-pixel-neonCyan text-black font-bold px-6 py-3 text-lg hover:bg-cyan-300 font-korean">
                 🎲 오늘의 점심 메뉴 추천!
             </button>
         </section>
+
         <!-- 10초 클릭 미니게임 섹션 -->
         <section class="pixel-border bg-white dark:bg-pixel-cardDark p-6 text-center space-y-4">
             <h2 class="text-xl sm:text-2xl font-bold text-pixel-neonYellow font-pixel">
@@ -282,6 +266,7 @@ Original file line number	Diff line number	Diff line change
                 <div>TIME: <span id="game-time" class="text-pixel-neonPink">10</span>s</div>
                 <div>SCORE: <span id="game-score" class="text-pixel-neonGreen">0</span></div>
             </div>
+
             <div class="pt-2">
                 <button id="click-game-btn" class="pixel-btn pixel-border bg-purple-600 text-white text-xl font-bold px-10 py-5 w-full sm:w-auto hover:bg-purple-700 font-korean">
                     ▶ GAME START (클릭!)
@@ -292,10 +277,13 @@ Original file line number	Diff line number	Diff line change
                 HIGH SCORE: 0
             </p>
         </section>
+
     </main>
+
     <footer class="mt-12 text-center text-xs opacity-60 font-pixel">
         <p>© 8-BIT EUNSEOL WORLD. ALL RIGHTS RESERVED.</p>
     </footer>
+
     <!-- JavaScript 기능 로직 -->
     <script>
         // --- 1. 다크/라이트 모드 토글 ---
@@ -303,6 +291,7 @@ Original file line number	Diff line number	Diff line change
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
         const html = document.documentElement;
+
         themeToggleBtn.addEventListener('click', () => {
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
@@ -314,6 +303,7 @@ Original file line number	Diff line number	Diff line change
                 themeText.textContent = '어두운 화면';
             }
         });
+
         // --- 2. 카드 뒤집기 이벤트 ---
         const cardContainers = document.querySelectorAll('.card-container');
         cardContainers.forEach(card => {
@@ -322,9 +312,11 @@ Original file line number	Diff line number	Diff line change
                 inner.classList.toggle('rotate-y-180');
             });
         });
+
         // --- 3. 마우스 따라다니는 반짝이 이펙트 ---
         const sparkleContainer = document.getElementById('sparkle-container');
         const colors = ['#ff007f', '#00f3ff', '#ffe600', '#39ff14', '#ffffff'];
+
         window.addEventListener('mousemove', (e) => {
             // 성능 강화를 위해 일정 확률로만 생성
             if (Math.random() < 0.25) {
@@ -338,15 +330,18 @@ Original file line number	Diff line number	Diff line change
                 sparkle.style.boxShadow = `0 0 6px ${sparkle.style.backgroundColor}`;
                 
                 sparkleContainer.appendChild(sparkle);
+
                 setTimeout(() => {
                     sparkle.remove();
                 }, 600);
             }
         });
+
         // --- 4. OX 퀴즈 ---
         const quizO = document.getElementById('quiz-o');
         const quizX = document.getElementById('quiz-x');
         const quizResult = document.getElementById('quiz-result');
+
         quizO.addEventListener('click', () => {
             quizResult.classList.remove('hidden', 'bg-red-500', 'text-white');
             quizResult.classList.add('bg-green-500', 'text-white');
@@ -359,6 +354,7 @@ Original file line number	Diff line number	Diff line change
                 origin: { y: 0.6 }
             });
         });
+
         quizX.addEventListener('click', () => {
             quizResult.classList.remove('hidden', 'bg-green-500', 'text-white');
             quizResult.classList.add('bg-red-500', 'text-white');
@@ -368,6 +364,7 @@ Original file line number	Diff line number	Diff line change
             document.body.classList.add('translate-x-1');
             setTimeout(() => document.body.classList.remove('translate-x-1'), 100);
         });
+
         // --- 5. 오늘의 점심 메뉴 추천 (10개 이상) ---
         const lunchMenus = [
             "🍕 8비트 치즈 피자",
@@ -383,17 +380,21 @@ Original file line number	Diff line number	Diff line change
             "🌮 멕시칸 퀘사디아",
             "🥩 육즙 가득 돈가스"
         ];
+
         const lunchBtn = document.getElementById('lunch-btn');
         const lunchDisplay = document.getElementById('lunch-display');
         let isSpinning = false;
+
         lunchBtn.addEventListener('click', () => {
             if (isSpinning) return;
             isSpinning = true;
+
             let counter = 0;
             const interval = setInterval(() => {
                 const randomTemp = lunchMenus[Math.floor(Math.random() * lunchMenus.length)];
                 lunchDisplay.textContent = randomTemp;
                 counter++;
+
                 if (counter > 15) {
                     clearInterval(interval);
                     const finalChoice = lunchMenus[Math.floor(Math.random() * lunchMenus.length)];
@@ -402,16 +403,19 @@ Original file line number	Diff line number	Diff line change
                 }
             }, 80);
         });
+
         // --- 6. 10초 스피드 클릭 미니게임 ---
         const gameBtn = document.getElementById('click-game-btn');
         const gameTimeDisplay = document.getElementById('game-time');
         const gameScoreDisplay = document.getElementById('game-score');
         const highScoreDisplay = document.getElementById('game-high-score');
+
         let score = 0;
         let timeLeft = 10;
         let gameTimer = null;
         let isPlaying = false;
         let highScore = 0;
+
         gameBtn.addEventListener('click', () => {
             if (!isPlaying) {
                 // 게임 시작
@@ -422,9 +426,11 @@ Original file line number	Diff line number	Diff line change
                 gameTimeDisplay.textContent = timeLeft;
                 gameBtn.textContent = '🔥 연타하세요!!! 🔥';
                 gameBtn.classList.replace('bg-purple-600', 'bg-red-600');
+
                 gameTimer = setInterval(() => {
                     timeLeft--;
                     gameTimeDisplay.textContent = timeLeft;
+
                     if (timeLeft <= 0) {
                         clearInterval(gameTimer);
                         isPlaying = false;
@@ -436,6 +442,7 @@ Original file line number	Diff line number	Diff line change
                             highScore = score;
                             highScoreDisplay.textContent = `HIGH SCORE: ${highScore} (NEW RECORD!)`;
                         }
+
                         alert(`🎮 GAME OVER!\n당신의 기록: 10초 동안 ${score}번 클릭했습니다!`);
                     }
                 }, 1000);
@@ -450,7 +457,7 @@ Original file line number	Diff line number	Diff line change
 <sb-widget id="sb-web" style="display:block;width:100%;max-width:640px;margin:32px auto;flex:1 1 100%;grid-column:1/-1;align-self:stretch;box-sizing:border-box"></sb-widget>
 <script>
 (function () {
-  var C = {"id":"sb-web","url":"https://script.google.com/macros/s/AKfycbyqpqjZjyTCvQmNvJcQe-wSGJxxu1sbr2t2kDSKH9kY89jeMJjyIFrocQqXjrENaYs/exec","q":"나는 집에 가고 싶다","title":"방명록","sel":"body > main:nth-child(12) > section:nth-child(4)","pos":"before"};
+  var C = {"id":"sb-web","url":"https://script.google.com/macros/s/AKfycbyqpqjZjyTCvQmNvJcQe-wSGJxxu1sbr2t2kDSKH9kY89jeMJjyIFrocQqXjrENaYs/exec","q":"나는 집에 가고 싶다","title":"방명록","sel":"body > header:nth-child(2)","pos":"before"};
   var host = document.getElementById(C.id);
   if (!host || host.sbReady) return;
   host.sbReady = true;
@@ -772,11 +779,3 @@ Original file line number	Diff line number	Diff line change
 <!-- ▲ 방명록·OX 투표 끝 ▲ -->
 </body>
 </html>
-0 commit comments
-Comments
-0
- (0)
-Comment
-You're not receiving notifications from this thread.
-
-There are no files selected for viewing
